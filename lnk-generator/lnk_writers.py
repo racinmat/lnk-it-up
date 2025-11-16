@@ -40,8 +40,8 @@ class LnkWriterFakeTargetExe(LnkWriter):
         # Process `fake_path`
         FORBIDDEN_CHARACTERS = ["<", ">", '"', "|", "?", "*"]
         if not any(char in FORBIDDEN_CHARACTERS for char in lnk.fake_path):
-            logging.warning("adding double quotes and RTL character to fake path \"%s\"" % lnk.fake_path)
-            lnk.fake_path = f'"{lnk.fake_path}"{'\u202E' if lnk.target_cmd else ''}'
+            logging.warning(f"adding double quotes{' and RTL character' if lnk.target_cmd else ''} to fake path \"%s\"" % lnk.fake_path)
+            lnk.fake_path = f'"{lnk.fake_path}"{'\u202D' if lnk.target_cmd else ''}'
 
         # SHELL LINK HEADER
         f.write(SHELL_LINK_HEADER.write(link_flags=[SHELL_LINK_HEADER.LinkFlags.HasLinkTargetIDList,
