@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 
-from .lnk_writers import LnkDetails, LnkWriterDisableWithoutArguments, LnkWriterFakeExeDisabled, LnkWriterFakeTargetExe, LnkWriterOverflow
+from .lnk_writers import LnkDetails, LnkWriterDisableWithoutArguments, LnkWriterFakeExeDisabled, LnkWriterFakeTargetExe, LnkWriterOverflow, LnkWriterCVE20259491
 
 
 # Configure logging
@@ -24,10 +24,11 @@ class LnkType(enum.Enum):
     REALEXE_HIDEARGS_DISABLETARGET = (LnkWriterDisableWithoutArguments, "Disable the entire target field, only show target executable (command-line arguments are invisible)")
     SPOOFEXE_OVERFLOWARGS_DISABLETARGET = (LnkWriterOverflow, "Spoof the target executable (command-line arguments will be visually hidden, target field will be disabled) - no longer works on Windows 11 24H2 and higher")
     SPOOFEXE_HIDEARGS_DISABLETARGET = (LnkWriterFakeExeDisabled, "Spoof the target executable (command-line arguments will be fully hidden, target field will be disabled)")
+    CVE20259491 = (LnkWriterCVE20259491, "Only show target executable (command-line arguments are invisible)")
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Generate a deceptive LNK file. (C) @Wietze, 2025", formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(description="Generate a deceptive LNK file. (C) @Wietze, 2025-2026", formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("lnk_type", choices=[e.name for e in LnkType], help='\n'.join(f'{e.name:<40}{e.value[-1]}' for e in LnkType))
 
     parser_target = parser.add_argument_group("LNK target")
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     # Look up and execute LnkWriter subclass
     lnk_type = LnkType[opts.lnk_type]
 
-    if lnk_type == LnkType.REALEXE_HIDEARGS_DISABLETARGET:
+    if lnk_type in [LnkType.REALEXE_HIDEARGS_DISABLETARGET, LnkType.CVE20259491]:
         if lnk_details.fake_path:
             logging.warning("argument --fake-path will be ignored for this LNK type")
     else:
@@ -63,8 +64,12 @@ if __name__ == '__main__':
             logging.error("argument --fake-path required for this LNK type")
             sys.exit(-1)
 
-    if '%' in lnk_details.target_path and lnk_type != LnkType.SPOOFEXE_HIDEARGS_DISABLETARGET:
+    if '%' in lnk_details.target_path and not lnk_type in [LnkType.SPOOFEXE_HIDEARGS_DISABLETARGET, LnkType.CVE20259491]:
         logging.error("argument --target-path cannot contain environment variables for this LNK type")
+        sys.exit(-1)
+
+    if not opts.target_command_line and lnk_type in [LnkType.CVE20259491]:
+        logging.error("command-line arguments required for this output type")
         sys.exit(-1)
 
     lnk_type.value[0].write(lnk_details)

