@@ -2,6 +2,8 @@
 
 A `python` module for generating deceptive LNK files.
 
+Read more about this tool in the blog post [_Trust Me, I'm A Shortcut_](https://www.wietzebeukema.nl/blog/trust-me-im-a-shortcut).
+
 ## Installation
 
 0. Make sure you have a recent version of `python` installed; version 3.10.0 or higher is required.
