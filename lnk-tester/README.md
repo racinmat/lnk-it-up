@@ -2,6 +2,8 @@
 
 A C++ program for identifying deceptive LNK files.
 
+Read more about this tool in the blog post [_Trust Me, I'm A Shortcut_](https://www.wietzebeukema.nl/blog/trust-me-im-a-shortcut).
+
 ## Usage
 
 To check whether a given LNK file resolves to the expected target, run the following on a Windows machine:

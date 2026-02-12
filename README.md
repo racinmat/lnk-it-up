@@ -2,6 +2,8 @@
 
 Project for generating and identifying deceptive LNK files.
 
+Read more about this project in the blog post [_Trust Me, I'm A Shortcut_](https://www.wietzebeukema.nl/blog/trust-me-im-a-shortcut).
+
 ## `lnk-generator`
 
 A `python` module for generating deceptive LNK files.
